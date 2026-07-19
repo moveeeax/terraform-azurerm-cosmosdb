@@ -9,7 +9,7 @@ exposes the endpoint and primary key.
 
 ```hcl
 module "cosmosdb" {
-  source = "github.com/cybercapybara/terraform-azurerm-cosmosdb"
+  source = "github.com/moveeeax/terraform-azurerm-cosmosdb"
 
   name                = "prod-cosmos01"
   resource_group_name = "prod-rg"
