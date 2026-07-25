@@ -4,7 +4,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.0"
+      version = ">= 3.99.0"
     }
   }
 }
@@ -21,6 +21,10 @@ module "cosmosdb" {
   location            = "eastus"
 
   consistency_level = "Session"
+
+  # public_network_access_enabled defaults to false, so this account is only
+  # reachable through a private endpoint. Set it to true if you need to reach it
+  # over the internet.
 
   tags = {
     Environment = "sandbox"
