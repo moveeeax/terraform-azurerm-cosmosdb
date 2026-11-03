@@ -12,7 +12,7 @@ The account is private by default: `public_network_access_enabled` defaults to
 
 ```hcl
 module "cosmosdb" {
-  source = "github.com/moveeeax/terraform-azurerm-cosmosdb"
+  source = "github.com/moveeeax/terraform-azurerm-cosmosdb?ref=v1.0.1"
 
   name                = "prod-cosmos01"
   resource_group_name = "prod-rg"
@@ -38,16 +38,22 @@ A runnable example lives in [`examples/basic`](examples/basic).
 
 ## Requirements
 
-| Name      | Version   |
-|-----------|-----------|
-| terraform | >= 1.5    |
-| azurerm   | >= 3.99.0 |
+| Name      | Version          |
+|-----------|------------------|
+| terraform | >= 1.5           |
+| azurerm   | >= 3.99.0, < 5.0 |
 
 `3.99.0` is not a preference, it is the floor: it is the first release in which
 `azurerm_cosmosdb_account` accepts `automatic_failover_enabled` and
 `multiple_write_locations_enabled`. On `3.98.0` and older, `terraform validate`
 fails with `Unsupported argument`. The module is validated against `3.99.0`
 through `4.x`.
+
+`< 5.0` is the ceiling. `azurerm` 5.0 removed `local_authentication_disabled`
+from `azurerm_cosmosdb_account` in favour of `local_authentication_enabled`, and
+that replacement only exists from `4.78.0`, so no single argument name works on
+both `3.99.0` and `5.x`. Without the ceiling, a fresh `terraform init` picks up
+`5.x` and `terraform validate` fails with `Unsupported argument`.
 
 Running the test suite additionally needs Terraform (or OpenTofu) `>= 1.7`,
 because it uses `mock_provider`. The module itself still works on `>= 1.5`.
