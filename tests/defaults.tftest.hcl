@@ -91,3 +91,21 @@ run "primary_region_is_always_geo_location_zero" {
     error_message = "Additional geo locations must be appended to the primary one."
   }
 }
+
+run "local_auth_stays_on_by_default" {
+  assert {
+    condition     = azurerm_cosmosdb_account.this.local_authentication_enabled == true
+    error_message = "Key-based auth must stay enabled by default so the primary_key output works."
+  }
+}
+
+run "local_auth_disabled_maps_to_provider_argument" {
+  variables {
+    local_authentication_disabled = true
+  }
+
+  assert {
+    condition     = azurerm_cosmosdb_account.this.local_authentication_enabled == false
+    error_message = "local_authentication_disabled = true must be sent as local_authentication_enabled = false."
+  }
+}

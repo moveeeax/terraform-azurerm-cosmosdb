@@ -122,13 +122,13 @@ variable "local_authentication_disabled" {
 }
 
 variable "minimal_tls_version" {
-  description = "Minimum TLS version accepted by the account. One of Tls, Tls11 or Tls12."
+  description = "Minimum TLS version accepted by the account. Only Tls12 is accepted: azurerm 5.0 dropped Tls and Tls11."
   type        = string
   default     = "Tls12"
 
   validation {
-    condition     = contains(["Tls", "Tls11", "Tls12"], var.minimal_tls_version)
-    error_message = "minimal_tls_version must be one of Tls, Tls11 or Tls12."
+    condition     = var.minimal_tls_version == "Tls12"
+    error_message = "minimal_tls_version must be \"Tls12\"; azurerm 5.0 no longer accepts Tls or Tls11."
   }
 }
 

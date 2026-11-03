@@ -27,7 +27,7 @@ resource "azurerm_cosmosdb_account" "this" {
   multiple_write_locations_enabled = var.multiple_write_locations_enabled
 
   public_network_access_enabled = var.public_network_access_enabled
-  local_authentication_disabled = var.local_authentication_disabled
+  local_authentication_enabled  = !var.local_authentication_disabled
   minimal_tls_version           = var.minimal_tls_version
 
   consistency_policy {

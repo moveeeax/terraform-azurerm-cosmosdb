@@ -41,6 +41,16 @@ run "rejects_invalid_tls_version" {
   expect_failures = [var.minimal_tls_version]
 }
 
+run "rejects_tls_below_1_2" {
+  command = plan
+
+  variables {
+    minimal_tls_version = "Tls11"
+  }
+
+  expect_failures = [var.minimal_tls_version]
+}
+
 run "rejects_invalid_backup_type" {
   command = plan
 
