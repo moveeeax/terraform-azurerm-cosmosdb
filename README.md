@@ -12,7 +12,7 @@ The account is private by default: `public_network_access_enabled` defaults to
 
 ```hcl
 module "cosmosdb" {
-  source = "github.com/moveeeax/terraform-azurerm-cosmosdb?ref=v1.0.1"
+  source = "github.com/moveeeax/terraform-azurerm-cosmosdb?ref=v2.0.0"
 
   name                = "prod-cosmos01"
   resource_group_name = "prod-rg"
@@ -41,19 +41,23 @@ A runnable example lives in [`examples/basic`](examples/basic).
 | Name      | Version          |
 |-----------|------------------|
 | terraform | >= 1.5           |
-| azurerm   | >= 3.99.0, < 5.0 |
+| azurerm   | >= 4.78.0, < 6.0 |
 
-`3.99.0` is not a preference, it is the floor: it is the first release in which
-`azurerm_cosmosdb_account` accepts `automatic_failover_enabled` and
-`multiple_write_locations_enabled`. On `3.98.0` and older, `terraform validate`
-fails with `Unsupported argument`. The module is validated against `3.99.0`
-through `4.x`.
+`4.78.0` is the floor: it is the first release in which `azurerm_cosmosdb_account`
+accepts `local_authentication_enabled`, and `5.0` removed the older
+`local_authentication_disabled`, so that is the only name that works on both
+majors. The module is validated against `4.78.0`, `4.81.0`, `5.0.0` and `5.12.0`.
 
-`< 5.0` is the ceiling. `azurerm` 5.0 removed `local_authentication_disabled`
-from `azurerm_cosmosdb_account` in favour of `local_authentication_enabled`, and
-that replacement only exists from `4.78.0`, so no single argument name works on
-both `3.99.0` and `5.x`. Without the ceiling, a fresh `terraform init` picks up
-`5.x` and `terraform validate` fails with `Unsupported argument`.
+If you are still on `azurerm` `3.x` or `4.0`-`4.77`, stay on the `v1` line of
+this module (`?ref=v1.0.1`), which is capped at `< 5.0`.
+
+### Upgrading from v1
+
+- Raise your `azurerm` constraint to at least `4.78.0`.
+- `minimal_tls_version` now only accepts `Tls12`, the only value `azurerm` 5.x
+  takes. If you set `Tls` or `Tls11`, remove it.
+- The `local_authentication_disabled` input keeps its name and meaning; the module
+  now passes it to the provider as `local_authentication_enabled`.
 
 Running the test suite additionally needs Terraform (or OpenTofu) `>= 1.7`,
 because it uses `mock_provider`. The module itself still works on `>= 1.5`.
@@ -98,7 +102,7 @@ private endpoint, which is the stronger control anyway, or manage
 | `additional_geo_locations`         | Additional read/write regions beyond the primary.                        | `list(object)` | `[]`                 |    no    |
 | `public_network_access_enabled`    | Whether the account is reachable over the public internet.               | `bool`         | `false`              |    no    |
 | `local_authentication_disabled`    | Disable key auth, leaving Entra ID RBAC as the only way in.              | `bool`         | `false`              |    no    |
-| `minimal_tls_version`              | Minimum accepted TLS version. Tls, Tls11 or Tls12.                       | `string`       | `"Tls12"`            |    no    |
+| `minimal_tls_version`              | Minimum accepted TLS version. Only Tls12.                                | `string`       | `"Tls12"`            |    no    |
 | `backup_type`                      | Backup mode. Periodic or Continuous.                                     | `string`       | `"Periodic"`         |    no    |
 | `backup_tier`                      | Continuous retention tier, Continuous only.                              | `string`       | `"Continuous7Days"`  |    no    |
 | `backup_interval_in_minutes`       | Interval between periodic backups, Periodic only.                        | `number`       | `240`                |    no    |
