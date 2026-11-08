@@ -6,6 +6,8 @@ All notable changes to this module are documented here. The format follows
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-11-08
+
 ### Added
 
 - `sql_role_assignments`: Cosmos DB data-plane role assignments
@@ -20,5 +22,6 @@ All notable changes to this module are documented here. The format follows
 
 Support for `azurerm` 5.x; see the README section "Upgrading from v1".
 
-[Unreleased]: https://github.com/moveeeax/terraform-azurerm-cosmosdb/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/moveeeax/terraform-azurerm-cosmosdb/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/moveeeax/terraform-azurerm-cosmosdb/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/moveeeax/terraform-azurerm-cosmosdb/compare/v1.0.1...v2.0.0
