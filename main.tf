@@ -14,6 +14,14 @@ locals {
   # Azure widens the BoundedStaleness bounds once the account spans more than
   # one region: prefix >= 100000 and interval >= 300.
   multi_region = length(var.additional_geo_locations) > 0
+
+  # IDs of the Cosmos DB built-in data-plane roles. They are the same fixed
+  # GUIDs on every account; only the account prefix differs.
+  # https://learn.microsoft.com/azure/cosmos-db/nosql/security/reference-data-plane-roles
+  sql_builtin_roles = {
+    reader      = "00000000-0000-0000-0000-000000000001"
+    contributor = "00000000-0000-0000-0000-000000000002"
+  }
 }
 
 resource "azurerm_cosmosdb_account" "this" {
@@ -78,6 +86,30 @@ resource "azurerm_cosmosdb_account" "this" {
     precondition {
       condition     = !(local.bounded_staleness && local.multi_region) || var.max_interval_in_seconds >= 300
       error_message = "With BoundedStaleness across more than one region, max_interval_in_seconds must be at least 300."
+    }
+  }
+}
+
+resource "azurerm_cosmosdb_sql_role_assignment" "this" {
+  for_each = var.sql_role_assignments
+
+  resource_group_name = var.resource_group_name
+  account_name        = azurerm_cosmosdb_account.this.name
+  principal_id        = each.value.principal_id
+  scope               = "${azurerm_cosmosdb_account.this.id}${each.value.scope != null ? each.value.scope : ""}"
+
+  role_definition_id = (
+    contains(keys(local.sql_builtin_roles), each.value.role)
+    ? "${azurerm_cosmosdb_account.this.id}/sqlRoleDefinitions/${local.sql_builtin_roles[each.value.role]}"
+    : each.value.role
+  )
+
+  lifecycle {
+    # SQL role assignments only exist on NoSQL (GlobalDocumentDB) accounts.
+    # MongoDB accounts use mongo role/user definitions instead.
+    precondition {
+      condition     = var.kind == "GlobalDocumentDB"
+      error_message = "sql_role_assignments require kind = \"GlobalDocumentDB\" (the NoSQL API); MongoDB and Parse accounts do not support Cosmos DB SQL role assignments."
     }
   }
 }

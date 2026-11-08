@@ -18,3 +18,8 @@ output "primary_key" {
   value       = azurerm_cosmosdb_account.this.primary_key
   sensitive   = true
 }
+
+output "sql_role_assignment_ids" {
+  description = "IDs of the Cosmos DB SQL role assignments, keyed like sql_role_assignments."
+  value       = { for k, a in azurerm_cosmosdb_sql_role_assignment.this : k => a.id }
+}
