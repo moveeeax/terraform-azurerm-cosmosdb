@@ -187,6 +187,40 @@ variable "backup_storage_redundancy" {
   }
 }
 
+variable "sql_role_assignments" {
+  description = "Cosmos DB data-plane role assignments (NoSQL API only), keyed by a stable name. role is \"reader\" (Cosmos DB Built-in Data Reader), \"contributor\" (Cosmos DB Built-in Data Contributor) or the full ID of a custom SQL role definition. scope is relative to the account, e.g. \"/dbs/app\" or \"/dbs/app/colls/orders\"; leave it null to cover the whole account. These are separate from Azure RBAC and are what callers need once local_authentication_disabled is true."
+  type = map(object({
+    principal_id = string
+    role         = string
+    scope        = optional(string)
+  }))
+  default = {}
+
+  validation {
+    condition = alltrue([
+      for a in values(var.sql_role_assignments) :
+      can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", a.principal_id))
+    ])
+    error_message = "sql_role_assignments principal_id must be the object ID (a GUID) of a user, group, service principal or managed identity."
+  }
+
+  validation {
+    condition = alltrue([
+      for a in values(var.sql_role_assignments) :
+      contains(["reader", "contributor"], a.role) || can(regex("/sqlRoleDefinitions/[^/]+$", a.role))
+    ])
+    error_message = "sql_role_assignments role must be \"reader\", \"contributor\" or the full ID of a SQL role definition (.../sqlRoleDefinitions/<id>)."
+  }
+
+  validation {
+    condition = alltrue([
+      for a in values(var.sql_role_assignments) :
+      a.scope == null || can(regex("^/dbs/[^/]+(/colls/[^/]+)?$", a.scope))
+    ])
+    error_message = "sql_role_assignments scope must be null (whole account), \"/dbs/<database>\" or \"/dbs/<database>/colls/<container>\"."
+  }
+}
+
 variable "tags" {
   description = "Map of tags applied to the account."
   type        = map(string)
